@@ -103,8 +103,8 @@ const App = () => {
       <h1>Ethereum Attestation Service</h1>
       <h2 style={{ textAlign: "center" }}>
         {!schemaUID
-          ? "Step 1: Freelancer registers a schema for their own reputation"
-          : "Step 2: Client creates attestation for Freelancer`s credibility"}
+          ? "Step 1: Volunteer registers a schema for their own reputation"
+          : "Step 2: Client creates attestation for Volunteer`s credibility"}
       </h2>
 
       {!schemaUID && (
@@ -134,7 +134,7 @@ const App = () => {
             name="freelancer"
             value={attestationData.freelancer}
             onChange={handleAttestationChange}
-            placeholder="Freelancer"
+            placeholder="Volunteer"
           />
           <input
             type="text"
@@ -144,7 +144,7 @@ const App = () => {
             placeholder="Value of work (1-100)"
           />
           <label htmlFor="recommendCheckbox">
-            Would you recommend this freelancer?
+            
           </label>
           <input
             type="checkbox"
