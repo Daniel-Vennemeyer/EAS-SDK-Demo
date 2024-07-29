@@ -4,9 +4,10 @@ import { SCHEMA, SCHEMA_DETAILS } from "./config/config";
 import { useEAS } from "./hooks/useEAS";
 
 type AttestationData = {
-  freelancer: string;
-  workQuality: number;
-  recommend: boolean;
+  Hours: number;
+  NFCID: number;
+  EventID: number;
+  OrganizerID: number;
 };
 /** @dev AFTER REGISTERING A SCHEMA, OR MAKING AN ATTESTATION
  * IF YOU REFRESH APP MAKE SURE TO PASTE IN SCHEMA/ATTESTATIONUID IN STATE VARIABLES OR ELSE APP WONT WORK
@@ -22,17 +23,18 @@ const App = () => {
     "0x4968c28d7e6a01c46c2bc1cfc5edb64a49e94801126c0c0a1d848ed72bd262c9"
   );
   const [attestationData, setAttestationData] = useState<AttestationData>({
-    freelancer: "",
-    workQuality: 0,
-    recommend: false,
+    Hours: 0,
+    NFCID: 0,
+    EventID: 0,
+    OrganizerID: 0,
   });
 
   const handleAttestationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, value, checked } = e.target;
+    // const { name, type, value, checked } = e.target;
 
     setAttestationData({
       ...attestationData,
-      [name]: type === "checkbox" ? checked : value,
+      // [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -54,19 +56,33 @@ const App = () => {
     if (!eas || !schemaUID) return;
     const schemaEncoder = new SchemaEncoder(SCHEMA);
     const encodedData = schemaEncoder.encodeData([
-      { name: "clientName", value: currentAddress, type: "string" },
+      // { name: "clientName", value: currentAddress, type: "string" },
       {
-        name: "workQuality",
-        value: attestationData.workQuality,
+        name: "Hours",
+        value: attestationData.Hours,
         type: "uint8",
       },
-      { name: "recommend", value: attestationData.recommend, type: "bool" },
+      {
+        name: "NFCID",
+        value: attestationData.NFCID,
+        type: "uint32",
+      },
+      {
+        name: "EventID",
+        value: attestationData.EventID,
+        type: "uint32",
+      },
+      {
+        name: "OrganizerID",
+        value: attestationData.OrganizerID,
+        type: "uint32",
+      },
     ]);
 
     const transaction = await eas.attest({
       schema: schemaUID,
       data: {
-        recipient: attestationData.freelancer,
+        recipient: "", // TODO: Needs to be changed to Privvy address 
         expirationTime: undefined,
         revocable: true, // Be aware that if your schema is not revocable, this MUST be false
         data: encodedData,
@@ -114,13 +130,16 @@ const App = () => {
             <strong>Schema Name:</strong> {SCHEMA_DETAILS.schemaName}
           </div>
           <div>
-            <strong>Client Name:</strong> {SCHEMA_DETAILS.clientName}
+            <strong>Hours:</strong> {SCHEMA_DETAILS.Hours}
           </div>
           <div>
-            <strong>Value of Work:</strong> {SCHEMA_DETAILS.workQuality}
+            <strong>NFCID:</strong> {SCHEMA_DETAILS.NFCID}
           </div>
           <div>
-            <strong>Recommend:</strong> {SCHEMA_DETAILS.recommend}
+            <strong>EventID:</strong> {SCHEMA_DETAILS.EventID}
+          </div>
+          <div>
+            <strong>OrganizerID:</strong> {SCHEMA_DETAILS.OrganizerID}
           </div>
           <button onClick={registerSchema}>Register Schema</button>
         </>
@@ -131,27 +150,31 @@ const App = () => {
           <h2>Create Attestation</h2>
           <input
             type="text"
-            name="freelancer"
-            value={attestationData.freelancer}
+            name="Hours"
+            value={attestationData.Hours}
             onChange={handleAttestationChange}
-            placeholder="Volunteer"
+            placeholder="Hours"
           />
           <input
             type="text"
-            name="workQuality"
-            value={attestationData.workQuality}
+            name="NFCID"
+            value={attestationData.NFCID}
             onChange={handleAttestationChange}
-            placeholder="Value of work (1-100)"
+            placeholder="NFC ID"
           />
-          <label htmlFor="recommendCheckbox">
-            
-          </label>
           <input
-            type="checkbox"
-            id="recommend"
-            name="recommend"
-            checked={attestationData.recommend}
+            type="text"
+            name="EventID"
+            value={attestationData.EventID}
             onChange={handleAttestationChange}
+            placeholder="Event ID"
+          />
+          <input
+            type="text"
+            name="OrganizerID"
+            value={attestationData.OrganizerID}
+            onChange={handleAttestationChange}
+            placeholder="Organizer ID"
           />
           <button onClick={createAttestation}>Create Attestation</button>
 

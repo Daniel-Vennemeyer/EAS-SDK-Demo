@@ -1,7 +1,7 @@
 import { EAS, SchemaRegistry } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { EAS_ADDRESS, SCHEMA_REGISTRY_ADDRESS, ALCHEMY_API_KEY } from '../config/config';
+import { EAS_ADDRESS, SCHEMA_REGISTRY_ADDRESS } from '../config/config';
 
 export const useEAS = () => {
   const [eas, setEAS] = useState<EAS>();
@@ -17,18 +17,22 @@ export const useEAS = () => {
         return;
       }
     
+      // Request account access if needed
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
       // Initialize the sdk with the address of the EAS Schema contract address
       const easInstance = new EAS(EAS_ADDRESS);
       const schemaRegistry = new SchemaRegistry(SCHEMA_REGISTRY_ADDRESS);
     
-      // Gets a default provider (in production use something else like infura/alchemy)
-      const provider = new ethers.AlchemyProvider("sepolia", ALCHEMY_API_KEY);
-      const signer = await provider.getSigner(); // Await here
-      const address = await signer.getAddress(); // Now 'getAddress' can be accessed
+      // Use Web3Provider to interact with the user's Ethereum wallet
+      // const provider = new ethers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = provider.getSigner();
+      const address = await (await signer).getAddress();
     
       // Connects an ethers style provider/signingProvider to perform read/write functions.
-      easInstance.connect(signer); // allow clients to attest against freelancer's schema
-      schemaRegistry.connect(signer); // allow Freelancer to register their own reputation schema
+      easInstance.connect(await signer); // allow clients to attest against freelancer's schema
+      schemaRegistry.connect(await signer); // allow Freelancer to register their own reputation schema
       setEAS(easInstance);
       setSchemaRegistry(schemaRegistry);
       setCurrentAddress(address);
