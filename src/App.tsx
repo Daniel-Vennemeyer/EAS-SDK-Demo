@@ -13,11 +13,12 @@ type AttestationData = {
  * IF YOU REFRESH APP MAKE SURE TO PASTE IN SCHEMA/ATTESTATIONUID IN STATE VARIABLES OR ELSE APP WONT WORK
  * */
 const App = () => {
-  const { eas, schemaRegistry, currentAddress } = useEAS();
+  // const { eas, schemaRegistry, currentAddress } = useEAS();
+  const { eas, currentAddress } = useEAS();
   console.log("currentAddress ", currentAddress);
   // schemaUID is set when Freelancer register's their own reputation schema
   const [schemaUID, setSchemaUID] = useState<string>(
-    "0x115908c1b0cc984bae16f262620dec3b9d1235372100d0ca0f115b62b43d3bfc"
+    "0xaba6545faa5ec5963565eded771e497c4adbb7205a07f4a8206f68fb8df26b9f"
   );
   const [attestationUID, setAttestationUID] = useState<string>(
     "0x4968c28d7e6a01c46c2bc1cfc5edb64a49e94801126c0c0a1d848ed72bd262c9"
@@ -40,19 +41,26 @@ const App = () => {
   // attestationUID is set when a client attests to the reputation schema
 
   const registerSchema = async () => {
-    if (!schemaRegistry) return;
-    const transaction = await schemaRegistry.register({
-      schema: SCHEMA,
-      resolverAddress: undefined,
-      revocable: true,
-    });
-    const uid = await transaction.wait();
-    console.log("schemaUID ", uid);
-    setSchemaUID(uid);
+    // if (!schemaRegistry) return;
+    // const transaction = await schemaRegistry.register({
+    //   schema: SCHEMA,
+    //   resolverAddress: undefined,
+    //   revocable: true,
+    // });
+    // const uid = await transaction.wait();
+    // console.log("schemaUID ", uid);
+    setSchemaUID("0xaba6545faa5ec5963565eded771e497c4adbb7205a07f4a8206f68fb8df26b9f");
   };
 
   const createAttestation = async () => {
-    if (!eas || !schemaUID) return;
+    if (!eas || !schemaUID) {
+      console.error("EAS or schemaUID is not defined.");
+      return;
+    }
+
+    console.log("EAS instance: ", eas);
+    console.log("Schema UID: ", schemaUID);
+
     const schemaEncoder = new SchemaEncoder(SCHEMA);
     const encodedData = schemaEncoder.encodeData([
       // { name: "clientName", value: currentAddress, type: "string" },
@@ -81,7 +89,7 @@ const App = () => {
     const transaction = await eas.attest({
       schema: schemaUID,
       data: {
-        recipient: "", // TODO: Needs to be changed to Privvy address 
+        recipient: currentAddress, // TODO: Needs to be changed to Privvy address 
         expirationTime: undefined,
         revocable: true, // Be aware that if your schema is not revocable, this MUST be false
         data: encodedData,
