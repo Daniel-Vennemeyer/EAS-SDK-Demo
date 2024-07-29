@@ -30,11 +30,10 @@ const App = () => {
   });
 
   const handleAttestationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const { name, type, value, checked } = e.target;
-
+    const { name, value } = e.target;
     setAttestationData({
       ...attestationData,
-      // [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
   };
 
